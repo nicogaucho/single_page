@@ -10,6 +10,8 @@
             <task-component></task-component>
 
             <modal-component></modal-component>
+
+            <update-component></update-component>
         </div>
     </div>
 </div>

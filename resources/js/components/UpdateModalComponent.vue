@@ -1,11 +1,11 @@
 <template>
 
     <!--Create Modal -->
-    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Create task</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Update task</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -19,17 +19,17 @@
                     <form>
                         <div class="form-group">
                             <label for="name">Name</label>
-                            <input v-model="task.name" type="text" class="form-control" id="name">
+                            <input v-model="new_update_task.name" id="name" type="text" class="form-control">
                         </div>
                         <div class="form-group">
                             <label for="body">Description</label>
-                            <input v-model="task.body" type="textarea" class="form-control" id="body">
+                            <input v-model="new_update_task.body" id="body" type="textarea" class="form-control">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button @click="createTask" type="button" class="btn btn-primary">Create</button>
+                    <button @click="updateTask" type="button" class="btn btn-primary">Update</button>
                 </div>
             </div>
         </div>
@@ -41,6 +41,7 @@
         data() {
             return {
                 task: {
+                    id:'',
                     name: '',
                     body: ''
                 },
@@ -49,9 +50,12 @@
 
                 uri: 'http://localhost:8000/tasks', 
                 errors: [],
+
                 new_update_task: []
             }
         },
+
+       
 
         methods: {
 
@@ -59,32 +63,18 @@
                 $('#createModal').modal("show");
             },
 
-            createTask(){
-               axios.post(this.uri, {
-                   name: this.task.name,
-                   body: this.task.body
-               }).then(response=>{
-                   this.tasks.push(response.data.task);
-                   $('#createModal').modal("hide");
-               }).catch(error=>{
-                   this.errors = [];
-                   if(error.response.data.errors.name){
-                       this.errors.push(error.response.data.errors.name[0]);
-                   }
-                   if(error.response.data.errors.body){
-                       this.errors.push(error.response.data.errors.body[0]);
-                   }
-               });
-            },
-
             updateModal(index){
                 this.errors = [];
-                $('#updateModal').modal("show");
+                $("#updateModal").modal("show");
                 this.new_update_task = this.tasks[index];
             },
 
+            updateTask(){
+                console.log(this.new_update_task.name);
+            },
 
-           loadTasks() {
+
+          loadTasks() {
                 axios.get(this.uri).then(response => {
                     this.tasks = response.data.tasks
                 });

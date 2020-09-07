@@ -23,8 +23,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 Vue.component('navbar-component', require('./components/NavbarComponent.vue').default);
 Vue.component('task-component', require('./components/TaskComponent.vue').default);
 Vue.component('modal-component', require('./components/ModalComponent.vue').default);
-
-
+Vue.component('update-component', require('./components/UpdateModalComponent.vue').default);
 
 
 /**

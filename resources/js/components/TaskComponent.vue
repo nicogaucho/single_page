@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button @click="createModal" class="btn btn-primary btn-block">Add a new task</button>
+        <button @click="loadCreateModal" class="btn btn-primary btn-block">Add a new task</button>
 
         <br>
 
@@ -13,20 +13,18 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="task in tasks" v-bind:key="task">
-                    <td>{{task.id}}</td>
+                <tr v-for="(task, index) in tasks" v-bind:key="index">
+                    <td>{{index + 1}}</td>
                     <td>{{task.name}}</td>
                     <td>{{task.body}}</td>
-                    <td><button type="button" class="btn btn-info btn-sm">Edit</button></td>
+                    <td><button @click="loadUpdateModal(index)" type="button" class="btn btn-info btn-sm">Edit</button></td>
                     <td><button type="button" class="btn btn-danger btn-sm">Delete</button></td>
                 </tr>
             </tbody>
         </table>
     </div>
-
-
-
 </template>
+
 
 <script>
     export default {
@@ -39,17 +37,21 @@
 
                 tasks: [],
 
-                uri: 'http://localhost:8000/tasks/'
+                uri: 'http://localhost:8000/tasks',
+
+                errors: [],
+
+                new_update_task: []
             }
         },
 
         methods: {
 
-            createModal(){
+            loadCreateModal(){
                 $('#createModal').modal("show");
             },
 
-          /*   createTask(){
+            createTask(){
                axios.post(this.uri, {
                    name: this.task.name,
                    body: this.task.body
@@ -60,7 +62,14 @@
                    console.log(error);
                });
             },
- */
+        
+            
+            loadUpdateModal(index){
+                this.errors = [];
+                this.new_update_task = this.tasks[index];
+                $('#updateModal').modal("show");
+                
+            },
 
             loadTasks() {
                 axios.get(this.uri).then(response => {
