@@ -114,4 +114,11 @@ class TasksController extends Controller
             'messagge'=> 'task has been deleted' 
         ]);
     }
+
+    public function singleTask($id)
+    {
+        $task = Task::find($id);
+
+        return response()->json($task);
+    }
 }

@@ -2005,7 +2005,7 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (response) {
         _this.tasks.push(response.data.task);
 
-        $('#createModal').modal("hide");
+        $('#createModal').modal("hide"); // emit event close-modal
       })["catch"](function (error) {
         _this.errors = [];
 
@@ -2085,6 +2085,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../app */ "./resources/js/app.js");
 //
 //
 //
@@ -2113,6 +2114,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2130,34 +2132,38 @@ __webpack_require__.r(__webpack_exports__);
     loadCreateModal: function loadCreateModal() {
       $('#createModal').modal("show");
     },
-    createTask: function createTask() {
-      var _this = this;
 
-      axios.post(this.uri, {
-        name: this.task.name,
-        body: this.task.body
-      }).then(function (response) {
-        _this.tasks.push(response.data.task);
-
-        $('#createModal').modal("hide");
-      })["catch"](function (error) {
-        console.log(error);
-      });
-    },
-    loadUpdateModal: function loadUpdateModal(index) {
-      this.errors = [];
-      this.new_update_task = this.tasks[index];
+    /* createTask(){
+       axios.post(this.uri, {
+           name: this.task.name,
+           body: this.task.body
+       }).then(response=>{
+           this.tasks.push(response.data.task);
+           $('#createModal').modal("hide");
+       }).catch(error=>{
+           console.log(error);
+       });
+    }, */
+    loadUpdateModal: function loadUpdateModal(id) {
+      // this.errors = [];
+      // this.new_update_task = this.tasks[index];
       $('#updateModal').modal("show");
+      _app__WEBPACK_IMPORTED_MODULE_0__["eventBus"].$emit('show-modal', id);
     },
     loadTasks: function loadTasks() {
-      var _this2 = this;
+      var _this = this;
 
       axios.get(this.uri).then(function (response) {
-        _this2.tasks = response.data.tasks;
+        _this.tasks = response.data.tasks;
       });
     }
   },
-  mounted: function mounted() {
+  created: function created() {
+    var _this2 = this;
+
+    _app__WEBPACK_IMPORTED_MODULE_0__["eventBus"].$on('close-modal', function (id) {
+      _this2.loadTask(id);
+    });
     this.loadTasks();
   }
 });
@@ -2173,6 +2179,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../app */ "./resources/js/app.js");
 //
 //
 //
@@ -2210,43 +2217,78 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       task: {
-        id: '',
         name: '',
         body: ''
       },
       tasks: [],
-      uri: 'http://localhost:8000/tasks',
+      uri: 'http://localhost:8000/task/',
       errors: [],
-      new_update_task: []
+      new_update_task: {
+        name: '',
+        body: ''
+      }
     };
   },
   methods: {
-    createModal: function createModal() {
-      $('#createModal').modal("show");
+    /* createModal(){
+        $('#createModal').modal("show");
     },
-    updateModal: function updateModal(index) {
-      this.errors = [];
-      $("#updateModal").modal("show");
-      this.new_update_task = this.tasks[index];
-    },
-    updateTask: function updateTask() {
-      console.log(this.new_update_task.name);
-    },
-    loadTasks: function loadTasks() {
+    */
+
+    /* updateModal(index){
+        this.errors = [];
+        $("#updateModal").modal("show");
+        this.new_update_task = this.tasks[index];
+    }, */
+
+    /* loadTasks() {
+        axios.get(this.uri).then(response => {
+            // console.log(response.data)
+            this.tasks = response.data.tasks
+        });
+    }, */
+    loadTask: function loadTask(id) {
       var _this = this;
 
-      axios.get(this.uri).then(function (response) {
-        _this.tasks = response.data.tasks;
+      axios.get(this.uri + id).then(function (response) {
+        // console.log(response.data);
+        _this.new_update_task.name = response.data.name;
+        _this.new_update_task.body = response.data.body;
+      });
+    },
+    updateTask: function updateTask() {
+      var _this2 = this;
+
+      axios.patch(this.uri + this.new_update_task.id, {
+        name: this.new_update_task.name,
+        body: this.new_update_task.body
+      }).then(function (response) {
+        $('#updateModal').modal("hide");
+        _app__WEBPACK_IMPORTED_MODULE_0__["eventBus"].$emit('close-modal', id);
+      })["catch"](function (error) {
+        _this2.errors = [];
+
+        if (error.response.data.errors.name) {
+          _this2.errors.push(error.response.data.errors.name[0]);
+        }
+
+        if (error.response.data.errors.body) {
+          _this2.errors.push(error.response.data.errors.body[0]);
+        }
       });
     }
   },
-  mounted: function mounted() {
-    this.loadTasks();
+  created: function created() {
+    var _this3 = this;
+
+    _app__WEBPACK_IMPORTED_MODULE_0__["eventBus"].$on('show-modal', function (id) {
+      _this3.loadTask(id);
+    });
   }
 });
 
@@ -38148,7 +38190,7 @@ var render = function() {
                   attrs: { type: "button" },
                   on: {
                     click: function($event) {
-                      return _vm.loadUpdateModal(index)
+                      return _vm.loadUpdateModal(task.id)
                     }
                   }
                 },
@@ -38314,7 +38356,11 @@ var render = function() {
               {
                 staticClass: "btn btn-primary",
                 attrs: { type: "button" },
-                on: { click: _vm.updateTask }
+                on: {
+                  click: function($event) {
+                    return _vm.updateTask()
+                  }
+                }
               },
               [_vm._v("Update")]
             )
@@ -50523,9 +50569,12 @@ module.exports = function(module) {
 /*!*****************************!*\
   !*** ./resources/js/app.js ***!
   \*****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: eventBus */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "eventBus", function() { return eventBus; });
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -50544,6 +50593,7 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
+var eventBus = new Vue();
 Vue.component('example-component', __webpack_require__(/*! ./components/ExampleComponent.vue */ "./resources/js/components/ExampleComponent.vue")["default"]);
 Vue.component('navbar-component', __webpack_require__(/*! ./components/NavbarComponent.vue */ "./resources/js/components/NavbarComponent.vue")["default"]);
 Vue.component('task-component', __webpack_require__(/*! ./components/TaskComponent.vue */ "./resources/js/components/TaskComponent.vue")["default"]);

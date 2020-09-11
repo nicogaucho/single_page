@@ -21,3 +21,8 @@ Route::get('/', 'HomeController@index')->name('home');
 
 Route::resource('/tasks', 'TasksController');
 
+Route::get('/task/{id}', 'TasksController@singleTask');
+
+Route::patch('/task/{id}/', 'TasksController@singleTask');
+
+

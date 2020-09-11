@@ -1,5 +1,4 @@
 <template>
-
     <!--Create Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -29,7 +28,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button @click="updateTask" type="button" class="btn btn-primary">Update</button>
+                    <button @click="updateTask()" type="button" class="btn btn-primary">Update</button>
                 </div>
             </div>
         </div>
@@ -37,52 +36,81 @@
 </template>
 
 <script>
+    import { eventBus } from './../app'
+
     export default {
         data() {
             return {
                 task: {
-                    id:'',
                     name: '',
                     body: ''
                 },
 
                 tasks: [],
 
-                uri: 'http://localhost:8000/tasks', 
+                uri: 'http://localhost:8000/task/',
+                
                 errors: [],
 
-                new_update_task: []
+                new_update_task: {
+                    name : '',
+                    body : ''
+                }
             }
         },
-
-       
 
         methods: {
 
-            createModal(){
+            /* createModal(){
                 $('#createModal').modal("show");
             },
-
-            updateModal(index){
+ */
+            /* updateModal(index){
                 this.errors = [];
                 $("#updateModal").modal("show");
                 this.new_update_task = this.tasks[index];
-            },
-
-            updateTask(){
-                console.log(this.new_update_task.name);
-            },
-
-
-          loadTasks() {
+            }, */
+ 
+            /* loadTasks() {
                 axios.get(this.uri).then(response => {
+                    // console.log(response.data)
                     this.tasks = response.data.tasks
                 });
-            }
-        },
+            }, */
 
-        mounted() {
-            this.loadTasks();
+            loadTask(id){
+                axios.get(this.uri + id).then(response => {
+                    // console.log(response.data);
+                    this.new_update_task.name = response.data.name;
+                    this.new_update_task.body = response.data.body;
+                });
+            },
+
+
+            updateTask(){
+                axios.patch(this.uri + this.new_update_task.id, {
+                   name: this.new_update_task.name,
+                   body: this.new_update_task.body
+               })
+               .then(response=>{
+                   $('#updateModal').modal("hide");
+                    eventBus.$emit('close-modal', id);
+               }).catch(error=>{
+                   this.errors = [];
+                   if(error.response.data.errors.name){
+                       this.errors.push(error.response.data.errors.name[0]);
+                   }
+                   if(error.response.data.errors.body){
+                       this.errors.push(error.response.data.errors.body[0]);
+                   }
+                });
+            }
+        },  
+
+        created() {
+            eventBus.$on('show-modal', (id) => {
+               this.loadTask(id);
+            });
         } 
     }
     

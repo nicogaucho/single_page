@@ -17,7 +17,7 @@
                     <td>{{index + 1}}</td>
                     <td>{{task.name}}</td>
                     <td>{{task.body}}</td>
-                    <td><button @click="loadUpdateModal(index)" type="button" class="btn btn-info btn-sm">Edit</button></td>
+                    <td><button @click="loadUpdateModal(task.id)" type="button" class="btn btn-info btn-sm">Edit</button></td>
                     <td><button type="button" class="btn btn-danger btn-sm">Delete</button></td>
                 </tr>
             </tbody>
@@ -27,6 +27,7 @@
 
 
 <script>
+    import { eventBus } from './../app' 
     export default {
         data() {
             return {
@@ -51,7 +52,7 @@
                 $('#createModal').modal("show");
             },
 
-            createTask(){
+            /* createTask(){
                axios.post(this.uri, {
                    name: this.task.name,
                    body: this.task.body
@@ -61,14 +62,14 @@
                }).catch(error=>{
                    console.log(error);
                });
-            },
+            }, */
         
             
-            loadUpdateModal(index){
-                this.errors = [];
-                this.new_update_task = this.tasks[index];
+            loadUpdateModal(id){
+                // this.errors = [];
+                // this.new_update_task = this.tasks[index];
                 $('#updateModal').modal("show");
-                
+                eventBus.$emit('show-modal', id);
             },
 
             loadTasks() {
@@ -78,9 +79,12 @@
             }
         },
 
-        mounted() {
+        created() {
+            eventBus.$on('close-modal', (id) => {
+               this.loadTask(id);
+            });
             this.loadTasks();
-        }
+        } 
     }
 
 </script>

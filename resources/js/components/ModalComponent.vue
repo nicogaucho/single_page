@@ -66,6 +66,7 @@
                }).then(response=>{
                    this.tasks.push(response.data.task);
                    $('#createModal').modal("hide");
+                   // emit event close-modal
                }).catch(error=>{
                    this.errors = [];
                    if(error.response.data.errors.name){
